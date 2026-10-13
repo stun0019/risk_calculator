@@ -3,14 +3,22 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
   <title>合約風險試算器</title>
+
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      color-scheme: dark;
+    }
 
     body {
       margin: 0;
-      padding: 16px;
+      padding: 10px;
       background: #000;
       color: #eee;
       font-family: Arial, "Microsoft JhengHei", sans-serif;
@@ -18,538 +26,830 @@
     }
 
     .calculator {
+      width: 100%;
       max-width: 650px;
-      margin: auto;
-      padding: 16px;
+      margin: 0 auto;
+      padding: 14px;
       border: 1px solid #242424;
       border-radius: 14px;
     }
 
-    label, .label {
-      display: block;
-      margin-bottom: 7px;
-      color: #999;
-      font-size: 12px;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    input[type="number"] {
-      width: 100%;
-      padding: 9px 13px;
-      background: #000;
-      color: #eee;
-      border: 1px solid #292929;
-      border-radius: 20px;
-      font-size: 14px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #777;
-    }
-
-    .field { margin-bottom: 14px; }
-
-    .price-grid {
+    .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
     }
 
-    .direction {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
+    .field {
+      min-width: 0;
     }
 
-    .direction button {
-      border: none;
-      border-radius: 20px;
-      padding: 7px;
-      color: #aaa;
+    .section {
+      margin-bottom: 12px;
+    }
+
+    label,
+    .label {
+      display: block;
+      margin-bottom: 5px;
+      color: #999;
+      font-size: 12px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      min-width: 0;
+      height: 42px;
+      padding: 0 10px;
       background: #101010;
+      color: #eee;
+      border: 1px solid #292929;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #8bbfba;
+    }
+
+    select {
       cursor: pointer;
     }
 
-    .direction button.active {
-      color: white;
-      background: #292929;
+    .direction {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      height: 42px;
+      padding: 3px;
+      border-radius: 10px;
+      background: #101010;
+      border: 1px solid #292929;
     }
 
-    .options {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-
-    .options label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #ddd;
-      margin: 0;
+    .direction button {
+      min-width: 0;
+      padding: 0 4px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #999;
       font-size: 13px;
       cursor: pointer;
     }
 
-    input[type="radio"] {
-      accent-color: #b5d8d5;
-      width: 16px;
-      height: 16px;
-      margin: 0;
+    .direction button.active {
+      background: #343434;
+      color: #fff;
+      font-weight: 600;
     }
 
     hr {
       border: 0;
-      border-top: 1px solid #171717;
-      margin: 18px 0;
+      border-top: 1px solid #242424;
+      margin: 13px 0;
     }
 
     .results {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 28px 18px;
-      padding: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 12px;
+      padding: 4px 0;
+    }
+
+    .result-item {
+      min-width: 0;
     }
 
     .result-label {
       color: #999;
       font-size: 12px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .result-value {
-      font-size: 18px;
-      font-weight: 500;
+      font-size: 21px;
+      font-weight: 600;
+      line-height: 1.2;
       overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
     }
 
     .result-note {
+      margin-top: 5px;
       color: #888;
-      font-size: 12px;
-      margin-top: 6px;
-    }
-
-    .red { color: #ff5555; }
-    .green { color: #00d68f; }
-
-    .detail {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 6px 8px;
-    }
-
-    .detail span:last-child {
-      text-align: right;
+      font-size: 11px;
       overflow-wrap: anywhere;
     }
 
+    .red {
+      color: #ff6262;
+    }
+
+    .green {
+      color: #00d68f;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail-item {
+      min-width: 0;
+    }
+
+    .detail-label {
+      color: #999;
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .detail-value {
+      color: #eee;
+      font-size: 13px;
+      font-weight: 500;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+
     .warning {
-      color: #aaa;
+      display: none;
+      margin-top: 12px;
+      padding: 9px 11px;
+      border: 1px solid #42331c;
+      border-radius: 9px;
+      background: #1c170e;
+      color: #e0ba78;
       font-size: 12px;
-      line-height: 1.6;
-      margin: 16px 0;
-    }
-
-    .copy-btn {
-      width: 100%;
-      padding: 10px;
-      background: #050505;
-      color: #aaa;
-      border: 1px solid #292929;
-      border-radius: 24px;
-      cursor: pointer;
-    }
-
-    .copy-btn:hover {
-      background: #171717;
-      color: white;
+      line-height: 1.5;
     }
 
     .error {
       display: none;
+      margin-bottom: 12px;
       color: #ff7777;
       font-size: 12px;
-      padding: 10px 0;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      width: 100%;
+      min-height: 43px;
+      margin-top: 15px;
+      padding: 10px;
+      background: #181818;
+      color: #ddd;
+      border: 1px solid #333;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: #292929;
+    }
+
+    .disclaimer {
+      margin: 10px 0 0;
+      color: #777;
+      font-size: 11px;
+      line-height: 1.5;
     }
 
     @media (max-width: 380px) {
-      body { padding: 8px; }
-      .calculator { padding: 12px; }
-      .price-grid { gap: 5px; }
-      input[type="number"] { padding: 9px 8px; }
+      body {
+        padding: 6px;
+      }
+
+      .calculator {
+        padding: 10px;
+      }
+
+      .grid-2 {
+        gap: 7px;
+      }
+
+      .grid-3 {
+        gap: 5px;
+      }
+
+      .result-value {
+        font-size: 18px;
+      }
+
+      .direction button {
+        font-size: 12px;
+      }
+
+      input[type="number"],
+      select {
+        padding: 0 7px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="calculator">
+
+<main class="calculator">
+
+  <!-- 交易方向與帳戶本金 -->
+  <div class="grid-2 section">
 
     <div class="field">
       <div class="label">交易方向</div>
+
       <div class="direction">
-        <button type="button" id="longBtn">做多 Long</button>
-        <button type="button" id="shortBtn" class="active">
-          做空 Short
+        <button type="button" id="longBtn">
+          做多
+        </button>
+
+        <button type="button"
+                id="shortBtn"
+                class="active">
+          做空
         </button>
       </div>
     </div>
 
     <div class="field">
       <label for="capital">帳戶本金（USDT）</label>
-      <input id="capital" type="number" value="100"
-             min="0.01" step="any">
+
+      <input
+        id="capital"
+        type="number"
+        value="100"
+        min="0.01"
+        step="any">
     </div>
 
-    <div class="price-grid">
-      <div class="field">
-        <label for="entry">Entry</label>
-        <input id="entry" type="number" value="5.30"
-               min="0.00000001" step="any">
-      </div>
-      <div class="field">
-        <label for="sl">SL</label>
-        <input id="sl" type="number" value="5.34"
-               min="0.00000001" step="any">
-      </div>
-      <div class="field">
-        <label for="tp">TP</label>
-        <input id="tp" type="number" value="5.22"
-               min="0.00000001" step="any">
-      </div>
-    </div>
+  </div>
 
-    <hr>
+  <!-- 進場、止損、止盈 -->
+  <div class="grid-3 section">
 
     <div class="field">
-      <div class="label">槓桿倍數</div>
-      <div class="options" id="leverageOptions"></div>
+      <label for="entry">Entry</label>
+      <input
+        id="entry"
+        type="number"
+        value="5.30"
+        min="0.00000001"
+        step="any">
     </div>
 
     <div class="field">
-      <div class="label">單筆風險比例（占本金）</div>
-      <div class="options" id="riskOptions"></div>
+      <label for="sl">SL</label>
+      <input
+        id="sl"
+        type="number"
+        value="5.34"
+        min="0.00000001"
+        step="any">
     </div>
 
-    <hr>
+    <div class="field">
+      <label for="tp">TP</label>
+      <input
+        id="tp"
+        type="number"
+        value="5.22"
+        min="0.00000001"
+        step="any">
+    </div>
 
-    <div id="error" class="error"></div>
+  </div>
 
-    <section class="results">
-      <div>
-        <div class="result-label">建議開倉保證金</div>
-        <div class="result-value" id="margin">—</div>
-        <div class="result-note" id="quantity">—</div>
+  <!-- 槓桿與單筆風險 -->
+  <div class="grid-2">
+
+    <div class="field">
+      <label for="leverage">槓桿倍數</label>
+
+      <select id="leverage">
+        <option value="20">20x</option>
+        <option value="50" selected>50x</option>
+        <option value="100">100x</option>
+        <option value="150">150x</option>
+        <option value="200">200x</option>
+        <option value="300">300x</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="riskPercent">
+        單筆風險（占本金）
+      </label>
+
+      <select id="riskPercent">
+        <option value="1">1%</option>
+        <option value="2">2%</option>
+        <option value="3">3%</option>
+        <option value="5">5%</option>
+        <option value="10" selected>10%</option>
+      </select>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <div id="error"
+       class="error"
+       role="status"></div>
+
+  <!-- 核心計算結果 -->
+  <section class="results" aria-live="polite">
+
+    <div class="result-item">
+      <div class="result-label">
+        建議開倉保證金
       </div>
 
-      <div>
-        <div class="result-label">保證金占本金</div>
-        <div class="result-value" id="marginPercent">—</div>
-        <div class="result-note">保證金 / 帳戶本金</div>
+      <div class="result-value" id="margin">
+        —
       </div>
 
-      <div>
-        <div class="result-label">SL 理論虧損</div>
-        <div class="result-value red" id="slLoss">—</div>
-        <div class="result-note" id="riskNote">—</div>
+      <div class="result-note" id="quantity">
+        —
+      </div>
+    </div>
+
+    <div class="result-item">
+      <div class="result-label">
+        保證金占本金
       </div>
 
-      <div>
-        <div class="result-label">TP 理論獲利</div>
-        <div class="result-value green" id="tpProfit">—</div>
-        <div class="result-note" id="rr">—</div>
+      <div class="result-value" id="marginPercent">
+        —
       </div>
-    </section>
 
-    <hr>
-
-    <div class="detail">
-      <span>SL 價格距離</span>
-      <span id="slDistance">—</span>
+      <div class="result-note">
+        保證金 / 帳戶本金
+      </div>
     </div>
 
-    <div class="detail">
-      <span>TP 價格距離</span>
-      <span id="tpDistance">—</span>
+    <div class="result-item">
+      <div class="result-label">
+        SL 理論虧損
+      </div>
+
+      <div class="result-value red" id="slLoss">
+        —
+      </div>
+
+      <div class="result-note" id="riskNote">
+        —
+      </div>
     </div>
 
-    <hr>
+    <div class="result-item">
+      <div class="result-label">
+        TP 理論獲利
+      </div>
 
-    <div class="detail">
-      <span>觸及 SL 後預估本金</span>
-      <span class="red" id="afterSL">—</span>
+      <div class="result-value green" id="tpProfit">
+        —
+      </div>
+
+      <div class="result-note" id="rr">
+        —
+      </div>
     </div>
 
-    <div class="detail">
-      <span>觸及 TP 後預估本金</span>
-      <span class="green" id="afterTP">—</span>
+  </section>
+
+  <hr>
+
+  <!-- SL / TP 價格距離 -->
+  <div class="details">
+
+    <div class="detail-item">
+      <div class="detail-label">
+        SL 價格距離
+      </div>
+
+      <div class="detail-value" id="slDistance">
+        —
+      </div>
     </div>
 
-    <div class="warning" id="warning"></div>
+    <div class="detail-item">
+      <div class="detail-label">
+        TP 價格距離
+      </div>
 
-    <button type="button" class="copy-btn" id="copyBtn">
-      複製試算結果
-    </button>
+      <div class="detail-value" id="tpDistance">
+        —
+      </div>
+    </div>
 
-    <p class="warning">
-      ※ 計算未包含交易手續費、資金費率、滑價與強平風險。
-      所有結果均為理論估算。
-    </p>
-  </main>
+  </div>
 
-  <script>
-    const $ = id => document.getElementById(id);
+  <hr>
 
-    let direction = "short";
-    let leverage = 50;
-    let riskPercent = 10;
-    let resultText = "";
+  <!-- 交易結束後預估本金 -->
+  <div class="details">
 
-    function createOptions(containerId, name, values, selected, suffix) {
-      const container = $(containerId);
+    <div class="detail-item">
+      <div class="detail-label">
+        觸及 SL 後預估本金
+      </div>
 
-      values.forEach(value => {
-        const label = document.createElement("label");
-        const input = document.createElement("input");
+      <div class="detail-value red" id="afterSL">
+        —
+      </div>
+    </div>
 
-        input.type = "radio";
-        input.name = name;
-        input.value = value;
-        input.checked = value === selected;
+    <div class="detail-item">
+      <div class="detail-label">
+        觸及 TP 後預估本金
+      </div>
 
-        input.addEventListener("change", () => {
-          if (name === "leverage") leverage = value;
-          if (name === "risk") riskPercent = value;
-          calculate();
-        });
+      <div class="detail-value green" id="afterTP">
+        —
+      </div>
+    </div>
 
-        label.append(input, document.createTextNode(value + suffix));
-        container.appendChild(label);
-      });
-    }
+  </div>
 
-    createOptions(
-      "leverageOptions", "leverage",
-      [20, 50, 100, 150, 200, 300],
-      50, "x"
+  <div class="warning" id="warning"></div>
+
+  <button type="button"
+          class="copy-btn"
+          id="copyBtn">
+    複製試算結果
+  </button>
+
+  <p class="disclaimer">
+    ※ 理論試算未包含手續費、資金費率、滑價及強平風險。
+  </p>
+
+</main>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  let direction = "short";
+  let resultText = "";
+
+  const resultIds = [
+    "margin",
+    "quantity",
+    "marginPercent",
+    "slLoss",
+    "riskNote",
+    "tpProfit",
+    "rr",
+    "slDistance",
+    "tpDistance",
+    "afterSL",
+    "afterTP"
+  ];
+
+  // 數字格式化
+  function format(value, decimals = 2) {
+    return Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  }
+
+  // 切換做多 / 做空
+  function setDirection(value) {
+    direction = value;
+
+    $("longBtn").classList.toggle(
+      "active",
+      direction === "long"
     );
 
-    createOptions(
-      "riskOptions", "risk",
-      [1, 2, 3, 5, 10],
-      10, "%"
+    $("shortBtn").classList.toggle(
+      "active",
+      direction === "short"
     );
-
-    function setDirection(value) {
-      direction = value;
-
-      $("longBtn").classList.toggle(
-        "active", direction === "long"
-      );
-
-      $("shortBtn").classList.toggle(
-        "active", direction === "short"
-      );
-
-      calculate();
-    }
-
-    $("longBtn").addEventListener("click", () => {
-      setDirection("long");
-    });
-
-    $("shortBtn").addEventListener("click", () => {
-      setDirection("short");
-    });
-
-    ["capital", "entry", "sl", "tp"].forEach(id => {
-      $(id).addEventListener("input", calculate);
-    });
-
-    function format(value, decimals = 2) {
-      return Number(value).toLocaleString("en-US", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-      });
-    }
-
-    function showError(message) {
-      $("error").textContent = message;
-      $("error").style.display = "block";
-
-      [
-        "margin", "quantity", "marginPercent",
-        "slLoss", "riskNote", "tpProfit", "rr",
-        "slDistance", "tpDistance", "afterSL",
-        "afterTP"
-      ].forEach(id => $(id).textContent = "—");
-
-      $("warning").textContent = "";
-      resultText = "";
-    }
-
-    function calculate() {
-      const capital = Number($("capital").value);
-      const entry = Number($("entry").value);
-      const sl = Number($("sl").value);
-      const tp = Number($("tp").value);
-
-      $("error").style.display = "none";
-
-      if (
-        !["capital", "entry", "sl", "tp"].every(
-          id => $(id).value.trim() !== ""
-        ) ||
-        ![capital, entry, sl, tp].every(
-          x => Number.isFinite(x) && x > 0
-        )
-      ) {
-        showError("請輸入大於 0 的有效數字。");
-        return;
-      }
-
-      const validDirection = direction === "long"
-        ? sl < entry && tp > entry
-        : sl > entry && tp < entry;
-
-      if (!validDirection) {
-        showError(
-          direction === "long"
-            ? "做多時 SL 必須低於 Entry，TP 必須高於 Entry。"
-            : "做空時 SL 必須高於 Entry，TP 必須低於 Entry。"
-        );
-        return;
-      }
-
-      // 單筆最大可承受虧損
-      const riskAmount = capital * riskPercent / 100;
-
-      // Entry 與 SL、TP 的價格距離
-      const slDistance = Math.abs(entry - sl) / entry;
-      const tpDistance = Math.abs(entry - tp) / entry;
-
-      // 依單筆風險反推倉位大小
-      const notional = riskAmount / slDistance;
-
-      // 合約數量
-      const quantity = notional / entry;
-
-      // 開倉所需保證金
-      const margin = notional / leverage;
-
-      // 保證金占帳戶本金百分比
-      const marginPercent = margin / capital * 100;
-
-      // 理論損益
-      const slLoss = riskAmount;
-      const tpProfit = notional * tpDistance;
-
-      // 盈虧比
-      const rr = tpProfit / slLoss;
-
-      // 觸及止損與止盈後的本金
-      const afterSL = capital - slLoss;
-      const afterTP = capital + tpProfit;
-
-      $("margin").textContent =
-        format(margin, 4) + " U";
-
-      $("quantity").textContent =
-        "數量 " + format(quantity, 4);
-
-      // 修改：保證金占本金四捨五入為整數
-      $("marginPercent").textContent =
-        Math.round(marginPercent) + "%";
-
-      $("slLoss").textContent =
-        "-" + format(slLoss) + " U";
-
-      $("riskNote").textContent =
-        "本金風險 " + riskPercent + "%";
-
-      $("tpProfit").textContent =
-        "+" + format(tpProfit) + " U";
-
-      $("rr").textContent =
-        "RR 1 : " + format(rr);
-
-      $("slDistance").textContent =
-        format(slDistance * 100, 3) + "%";
-
-      $("tpDistance").textContent =
-        format(tpDistance * 100, 3) + "%";
-
-      $("afterSL").textContent =
-        format(afterSL) + " U";
-
-      $("afterTP").textContent =
-        format(afterTP) + " U";
-
-      const warnings = [];
-
-      if (riskPercent >= 10) {
-        warnings.push(
-          "單筆風險 " + riskPercent +
-          "%，屬於高風險配置。"
-        );
-      } else if (riskPercent >= 5) {
-        warnings.push(
-          "單筆風險偏高，連續止損可能造成較大回撤。"
-        );
-      }
-
-      if (marginPercent > 100) {
-        warnings.push(
-          "所需保證金超過帳戶本金，可能無法完整開倉。"
-        );
-      }
-
-      $("warning").textContent = warnings.join(" ");
-
-      resultText = [
-        "交易方向：" + (direction === "long" ? "做多" : "做空"),
-        "帳戶本金：" + format(capital) + " USDT",
-        "Entry：" + entry,
-        "SL：" + sl,
-        "TP：" + tp,
-        "槓桿：" + leverage + "x",
-        "單筆風險：" + riskPercent + "%",
-        "建議開倉保證金：" + format(margin, 4) + " U",
-
-        // 修改：複製結果同樣使用整數百分比
-        "保證金占本金：" + Math.round(marginPercent) + "%",
-
-        "合約數量：" + format(quantity, 4),
-        "SL 理論虧損：-" + format(slLoss) + " U",
-        "TP 理論獲利：+" + format(tpProfit) + " U",
-        "RR：1 : " + format(rr),
-        "SL 後本金：" + format(afterSL) + " U",
-        "TP 後本金：" + format(afterTP) + " U"
-      ].join("\n");
-    }
-
-    $("copyBtn").addEventListener("click", async () => {
-      if (!resultText) return;
-
-      try {
-        await navigator.clipboard.writeText(resultText);
-        $("copyBtn").textContent = "已複製試算結果";
-      } catch {
-        const textarea = document.createElement("textarea");
-        textarea.value = resultText;
-        document.body.appendChild(textarea);
-        textarea.select();
-
-        const success = document.execCommand("copy");
-        textarea.remove();
-
-        $("copyBtn").textContent = success
-          ? "已複製試算結果"
-          : "複製失敗，請手動複製";
-      }
-    });
 
     calculate();
-  </script>
+  }
+
+  $("longBtn").addEventListener("click", () => {
+    setDirection("long");
+  });
+
+  $("shortBtn").addEventListener("click", () => {
+    setDirection("short");
+  });
+
+  // 輸入時即時計算
+  [
+    "capital",
+    "entry",
+    "sl",
+    "tp"
+  ].forEach(id => {
+    $(id).addEventListener("input", calculate);
+  });
+
+  // 選單切換即時計算
+  $("leverage").addEventListener(
+    "change",
+    calculate
+  );
+
+  $("riskPercent").addEventListener(
+    "change",
+    calculate
+  );
+
+  // 輸入錯誤處理
+  function showError(message) {
+    $("error").textContent = message;
+    $("error").style.display = "block";
+
+    resultIds.forEach(id => {
+      $(id).textContent = "—";
+    });
+
+    $("warning").style.display = "none";
+    $("warning").textContent = "";
+
+    resultText = "";
+  }
+
+  // 主計算函式
+  function calculate() {
+
+    const capital = Number($("capital").value);
+    const entry = Number($("entry").value);
+    const sl = Number($("sl").value);
+    const tp = Number($("tp").value);
+
+    const leverage = Number($("leverage").value);
+    const riskPercent = Number($("riskPercent").value);
+
+    $("error").style.display = "none";
+
+    // 驗證輸入
+    const inputIds = [
+      "capital",
+      "entry",
+      "sl",
+      "tp"
+    ];
+
+    const hasEmpty = inputIds.some(
+      id => $(id).value.trim() === ""
+    );
+
+    const validNumbers = [
+      capital,
+      entry,
+      sl,
+      tp,
+      leverage,
+      riskPercent
+    ].every(value =>
+      Number.isFinite(value) && value > 0
+    );
+
+    if (hasEmpty || !validNumbers) {
+      showError("請輸入大於 0 的有效數字。");
+      return;
+    }
+
+    // 檢查多空方向與 SL / TP
+    const validDirection = direction === "long"
+      ? sl < entry && tp > entry
+      : sl > entry && tp < entry;
+
+    if (!validDirection) {
+      showError(
+        direction === "long"
+          ? "做多：SL 需低於 Entry，TP 需高於 Entry。"
+          : "做空：SL 需高於 Entry，TP 需低於 Entry。"
+      );
+      return;
+    }
+
+    // 單筆可承受最大虧損
+    const riskAmount =
+      capital * riskPercent / 100;
+
+    // 止損 / 止盈價格距離
+    const slDistance =
+      Math.abs(entry - sl) / entry;
+
+    const tpDistance =
+      Math.abs(entry - tp) / entry;
+
+    // 依風險反推名目倉位
+    const notional =
+      riskAmount / slDistance;
+
+    // 合約數量
+    const quantity =
+      notional / entry;
+
+    // 建議開倉保證金
+    const margin =
+      notional / leverage;
+
+    // 保證金占本金
+    const marginPercent =
+      margin / capital * 100;
+
+    // 四捨五入為整數，僅影響顯示
+    const roundedMarginPercent =
+      Math.round(marginPercent);
+
+    // 理論損益
+    const slLoss = riskAmount;
+
+    const tpProfit =
+      notional * tpDistance;
+
+    // 盈虧比
+    const rr =
+      tpProfit / slLoss;
+
+    // 止損 / 止盈後帳戶本金
+    const afterSL =
+      capital - slLoss;
+
+    const afterTP =
+      capital + tpProfit;
+
+    // 顯示結果
+    $("margin").textContent =
+      format(margin, 4) + " U";
+
+    $("quantity").textContent =
+      "數量 " + format(quantity, 4);
+
+    $("marginPercent").textContent =
+      roundedMarginPercent + "%";
+
+    $("slLoss").textContent =
+      "-" + format(slLoss) + " U";
+
+    $("riskNote").textContent =
+      "本金風險 " + riskPercent + "%";
+
+    $("tpProfit").textContent =
+      "+" + format(tpProfit) + " U";
+
+    $("rr").textContent =
+      "RR 1 : " + format(rr);
+
+    $("slDistance").textContent =
+      format(slDistance * 100, 3) + "%";
+
+    $("tpDistance").textContent =
+      format(tpDistance * 100, 3) + "%";
+
+    $("afterSL").textContent =
+      format(afterSL) + " U";
+
+    $("afterTP").textContent =
+      format(afterTP) + " U";
+
+    // 風險警告：有警告時才顯示
+    const warnings = [];
+
+    if (riskPercent >= 10) {
+      warnings.push(
+        "單筆風險 " + riskPercent +
+        "%，屬於高風險配置。"
+      );
+    } else if (riskPercent >= 5) {
+      warnings.push(
+        "單筆風險偏高，連續止損可能造成較大回撤。"
+      );
+    }
+
+    if (marginPercent > 100) {
+      warnings.push(
+        "所需保證金超過帳戶本金，可能無法完整開倉。"
+      );
+    }
+
+    if (warnings.length > 0) {
+      $("warning").textContent =
+        warnings.join(" ");
+
+      $("warning").style.display = "block";
+    } else {
+      $("warning").textContent = "";
+      $("warning").style.display = "none";
+    }
+
+    // 建立複製用文字
+    resultText = [
+      "交易方向：" +
+        (direction === "long" ? "做多" : "做空"),
+
+      "帳戶本金：" +
+        format(capital) + " USDT",
+
+      "Entry：" + entry,
+      "SL：" + sl,
+      "TP：" + tp,
+
+      "槓桿：" + leverage + "x",
+
+      "單筆風險：" + riskPercent + "%",
+
+      "建議開倉保證金：" +
+        format(margin, 4) + " U",
+
+      "保證金占本金：" +
+        roundedMarginPercent + "%",
+
+      "合約數量：" +
+        format(quantity, 4),
+
+      "SL 理論虧損：-" +
+        format(slLoss) + " U",
+
+      "TP 理論獲利：+" +
+        format(tpProfit) + " U",
+
+      "RR：1 : " + format(rr),
+
+      "SL 後本金：" +
+        format(afterSL) + " U",
+
+      "TP 後本金：" +
+        format(afterTP) + " U"
+    ].join("\n");
+
+    // 有效數據更新後，重置複製按鈕
+    $("copyBtn").textContent = "複製試算結果";
+  }
+
+  // 複製結果
+  $("copyBtn").addEventListener(
+    "click",
+    async () => {
+
+      if (!resultText) return;
+
+      let success = false;
+
+      // 優先使用 Clipboard API
+      try {
+        if (!navigator.clipboard) {
+          throw new Error("Clipboard API unavailable");
+        }
+
+        await navigator.clipboard.writeText(resultText);
+        success = true;
+
+      } catch (error) {
+
+        // 相容部分本機 HTML 環境
+        const textarea =
+          document.createElement("textarea");
+
+        textarea.value = resultText;
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+
+        document.body.appendChild(textarea);
+
+        textarea.focus();
+        textarea.select();
+
+        try {
+          success = document.execCommand("copy");
+        } catch (copyError) {
+          success = false;
+        }
+
+        textarea.remove();
+      }
+
+      $("copyBtn").textContent = success
+        ? "已複製試算結果"
+        : "複製失敗";
+    }
+  );
+
+  // 首次載入自動計算
+  calculate();
+</script>
+
 </body>
 </html>
