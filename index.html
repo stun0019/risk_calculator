@@ -457,8 +457,9 @@
       $("quantity").textContent =
         "數量 " + format(quantity, 4);
 
+      // 修改：保證金占本金四捨五入為整數
       $("marginPercent").textContent =
-        format(marginPercent) + "%";
+        Math.round(marginPercent) + "%";
 
       $("slLoss").textContent =
         "-" + format(slLoss) + " U";
@@ -514,7 +515,10 @@
         "槓桿：" + leverage + "x",
         "單筆風險：" + riskPercent + "%",
         "建議開倉保證金：" + format(margin, 4) + " U",
-        "保證金占本金：" + format(marginPercent) + "%",
+
+        // 修改：複製結果同樣使用整數百分比
+        "保證金占本金：" + Math.round(marginPercent) + "%",
+
         "合約數量：" + format(quantity, 4),
         "SL 理論虧損：-" + format(slLoss) + " U",
         "TP 理論獲利：+" + format(tpProfit) + " U",
